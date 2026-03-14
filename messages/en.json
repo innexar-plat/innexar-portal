@@ -1,0 +1,140 @@
+{
+  "dashboard": {
+    "header": { "logout": "Sign Out" },
+    "welcome": {
+      "greeting": "Hello",
+      "subtitle": "Track your project's progress below."
+    },
+    "status": {
+      "label": "Current Status",
+      "requested": "Request Sent",
+      "paid": "Payment Confirmed",
+      "onboarding": "Awaiting Onboarding",
+      "building": "In Development",
+      "review": "Ready for Review",
+      "delivered": "Delivered",
+      "delivery": "Expected delivery"
+    },
+    "business": {
+      "title": "Your Business",
+      "name": "Name",
+      "location": "Location",
+      "pending": "Complete onboarding to see information"
+    },
+    "order": {
+      "title": "Order Details",
+      "number": "Order #",
+      "total": "Total Value",
+      "revisions": "Revisions Used"
+    },
+    "success": {
+      "title": "Your Site is Live! 🎉",
+      "message": "Congratulations! Your website is now published and ready for the world. You can access it through the button below.",
+      "button": "Visit My Site"
+    },
+    "actions": {
+      "title": "Quick Actions",
+      "viewPreview": "View Preview",
+      "requestChanges": "Request Changes",
+      "approveDesign": "Approve Design",
+      "contactSupport": "Contact Support"
+    },
+    "support": {
+      "title": "Need Help?",
+      "message": "Our team is here to assist you.",
+      "email": "Email Us",
+      "whatsapp": "WhatsApp"
+    },
+    "error": {
+      "title": "Failed to load",
+      "fetch": "Failed to load project",
+      "generic": "Error loading",
+      "notFound": "Project not found",
+      "retry": "Login again"
+    },
+    "stats": {
+      "activeProjects": "Active Projects",
+      "completed": "Completed",
+      "totalProjects": "Total Projects"
+    },
+    "pipeline": {
+      "payment": "Payment",
+      "development": "Development",
+      "review": "Review",
+      "launch": "Launch",
+      "eta": "ETA"
+    },
+    "documents": {
+      "title": "Project Documents",
+      "subtitle": "Review planning documents and shared drafts."
+    },
+    "empty": {
+      "title": "No projects yet",
+      "subtitle": "Start your digital journey by requesting your first project.",
+      "cta": "Start First Project"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "subtitle": "Access your customer portal to track your site development.",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "Enter your email",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "forgotPassword": "Forgot your password?",
+      "submit": "Sign In",
+      "noAccount": "Don't have an account?",
+      "getStarted": "Get Started",
+      "error": {
+        "invalid": "Invalid email or password",
+        "generic": "Something went wrong. Please try again."
+      }
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "projects": "Projects",
+      "support": "Support",
+      "newProject": "New Project",
+      "siteBriefing": "Site Data",
+      "billing": "Billing",
+      "notifications": "Notifications",
+      "profile": "Profile",
+      "logout": "Logout"
+    },
+    "forgotPassword": {
+      "title": "Reset Password",
+      "subtitle": "Enter your email and we'll send you a link to reset your password.",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "Enter your email",
+      "submit": "Send Reset Link",
+      "backToLogin": "Back to login",
+      "success": "Check your email for the reset link.",
+      "error": "Could not find an account with that email."
+    },
+    "resetPassword": {
+      "title": "New Password",
+      "subtitle": "Create a new password for your account.",
+      "passwordLabel": "New Password",
+      "passwordPlaceholder": "At least 8 characters",
+      "confirmPasswordLabel": "Confirm New Password",
+      "confirmPasswordPlaceholder": "Repeat your new password",
+      "submit": "Update Password",
+      "success": "Password updated successfully!",
+      "error": "Failed to reset password. The link may be expired.",
+      "mismatch": "Passwords do not match"
+    },
+    "verifyEmail": {
+      "title": "Check Your Inbox",
+      "subtitle": "We've sent a verification link to your email address.",
+      "resend": "Didn't receive the email?",
+      "resendButton": "Resend verification email",
+      "success": "Verification email sent!",
+      "verified": {
+        "title": "Email Verified!",
+        "subtitle": "Your account is now active. You can proceed to your portal.",
+        "cta": "Go to Portal"
+      }
+    }
+  }
+}

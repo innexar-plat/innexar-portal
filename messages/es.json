@@ -1,0 +1,140 @@
+{
+  "dashboard": {
+    "header": { "logout": "Cerrar sesión" },
+    "welcome": {
+      "greeting": "Hola",
+      "subtitle": "Siga el progreso de su proyecto a continuación."
+    },
+    "status": {
+      "label": "Estado Actual",
+      "requested": "Solicitud Enviada",
+      "paid": "Pago Confirmado",
+      "onboarding": "Esperando Onboarding",
+      "building": "En Desarrollo",
+      "review": "Listo para Revisión",
+      "delivered": "Entregado",
+      "delivery": "Entrega prevista"
+    },
+    "business": {
+      "title": "Su Negocio",
+      "name": "Nombre",
+      "location": "Ubicación",
+      "pending": "Complete el onboarding para ver la información"
+    },
+    "order": {
+      "title": "Detalles del Pedido",
+      "number": "Pedido #",
+      "total": "Valor Total",
+      "revisions": "Revisiones Utilizadas"
+    },
+    "success": {
+      "title": "¡Su Sitio Está en Línea! 🎉",
+      "message": "¡Felicidades! Su sitio web ha sido publicado y está listo para el mundo. Puede acceder a él a través del botón de abajo.",
+      "button": "Visitar Mi Sitio"
+    },
+    "actions": {
+      "title": "Acciones Rápidas",
+      "viewPreview": "Ver Vista Previa",
+      "requestChanges": "Solicitar Cambios",
+      "approveDesign": "Aprovar Diseño",
+      "contactSupport": "Contactar Soporte"
+    },
+    "support": {
+      "title": "¿Necesita Ayuda?",
+      "message": "Nuestro equipo está aquí para ayudarle.",
+      "email": "Enviarnos un Correo",
+      "whatsapp": "WhatsApp"
+    },
+    "error": {
+      "title": "Error al cargar",
+      "fetch": "Fallo al cargar el proyecto",
+      "generic": "Error al cargar",
+      "notFound": "Proyecto no encontrado",
+      "retry": "Regresar al inicio de sesión"
+    },
+    "stats": {
+      "activeProjects": "Proyectos Activos",
+      "completed": "Completados",
+      "totalProjects": "Total de Proyectos"
+    },
+    "pipeline": {
+      "payment": "Pago",
+      "development": "Desarrollo",
+      "review": "Revisión",
+      "launch": "Lanzamiento",
+      "eta": "Previsión"
+    },
+    "documents": {
+      "title": "Documentos del Proyecto",
+      "subtitle": "Revise documentos de planificación y borradores compartidos."
+    },
+    "empty": {
+      "title": "Aún no hay proyectos",
+      "subtitle": "Comience su viaje digital solicitando su primer proyecto.",
+      "cta": "Iniciar Primer Proyecto"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Bienvenido de nuevo",
+      "subtitle": "Acceda a su portal de cliente para seguir el desarrollo de su sitio.",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "Ingrese su correo electrónico",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "Ingrese su contraseña",
+      "forgotPassword": "¿Olvidó su contraseña?",
+      "submit": "Iniciar sesión",
+      "noAccount": "¿No tienes una cuenta?",
+      "getStarted": "Comenzar ahora",
+      "error": {
+        "invalid": "Correo electrónico o contraseña inválidos",
+        "generic": "Algo salió mal. Por favor, intente de nuevo."
+      }
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "projects": "Proyectos",
+      "support": "Soporte",
+      "newProject": "Nuevo Proyecto",
+      "siteBriefing": "Datos del sitio",
+      "billing": "Facturación",
+      "notifications": "Notificaciones",
+      "profile": "Perfil",
+      "logout": "Cerrar Sesión"
+    },
+    "forgotPassword": {
+      "title": "Restablecer contraseña",
+      "subtitle": "Ingrese su correo electrónico y le enviaremos un enlace para restablecer su contraseña.",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "Ingrese su correo electrónico",
+      "submit": "Enviar enlace de restablecimiento",
+      "backToLogin": "Volver al inicio de sesión",
+      "success": "Revise su correo electrónico para ver el enlace de restablecimiento.",
+      "error": "No se pudo encontrar una cuenta con ese correo electrónico."
+    },
+    "resetPassword": {
+      "title": "Nueva contraseña",
+      "subtitle": "Cree una nueva contraseña para su cuenta.",
+      "passwordLabel": "Nueva contraseña",
+      "passwordPlaceholder": "Al menos 8 caracteres",
+      "confirmPasswordLabel": "Confirmar nueva contraseña",
+      "confirmPasswordPlaceholder": "Repita su nueva contraseña",
+      "submit": "Actualizar contraseña",
+      "success": "¡Contraseña actualizada con éxito!",
+      "error": "Error al restablecer la contraseña. El enlace puede haber expirado.",
+      "mismatch": "Las contraseñas no coinciden"
+    },
+    "verifyEmail": {
+      "title": "Revise su bandeja de entrada",
+      "subtitle": "Hemos enviado un enlace de verificación a su dirección de correo electrónico.",
+      "resend": "¿No recibió el correo electrónico?",
+      "resendButton": "Reenviar correo electrónico de verificación",
+      "success": "¡Correo electrónico de verificación enviado!",
+      "verified": {
+        "title": "¡Correo electrónico verificado!",
+        "subtitle": "Su cuenta ahora está activa. Puede acceder a su portal.",
+        "cta": "Ir al portal"
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+services:
+  innexar-portal:
+    image: ${IMAGE_REPOSITORY:-ghcr.io/innexar-plat/innexar-brasil}/portal:${IMAGE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_USE_WORKSPACE_API=${NEXT_PUBLIC_USE_WORKSPACE_API:-true}
+        - NEXT_PUBLIC_WORKSPACE_API_URL=${NEXT_PUBLIC_WORKSPACE_API_URL:-https://api.innexar.com.br}
+        - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-https://innexar.com.br}
+        - NEXT_PUBLIC_MP_PUBLIC_KEY=${NEXT_PUBLIC_MP_PUBLIC_KEY}
+    container_name: innexar-portal
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - NEXT_TELEMETRY_DISABLED=1
+      - NEXT_PUBLIC_USE_WORKSPACE_API=${NEXT_PUBLIC_USE_WORKSPACE_API:-true}
+      - NEXT_PUBLIC_WORKSPACE_API_URL=${NEXT_PUBLIC_WORKSPACE_API_URL:-https://api.innexar.com.br}
+      - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL:-https://innexar.com.br}
+    env_file:
+      - .env
+    networks:
+      - fixelo_fixelo-network
+    labels:
+      - "innexar.scope=br"
+      - "traefik.enable=true"
+      - "traefik.http.routers.innexar-portal.rule=Host(`portal.innexar.com.br`)"
+      - "traefik.http.routers.innexar-portal.entrypoints=websecure"
+      - "traefik.http.routers.innexar-portal.tls.certresolver=cloudflare"
+      - "traefik.http.routers.innexar-portal.service=innexar-portal-service"
+      - "traefik.http.services.innexar-portal-service.loadbalancer.server.port=3000"
+      - "traefik.http.services.innexar-portal-service.loadbalancer.passHostHeader=true"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  fixelo_fixelo-network:
+    external: true

@@ -1,0 +1,349 @@
+'use client';
+
+import { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
+import { useLocale } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
+import {
+    MessageSquare, Send, Clock, CheckCircle2, AlertCircle,
+    Plus, ArrowRight, Loader2, X
+} from 'lucide-react';
+import { useWorkspaceApi, workspaceFetch, getCustomerToken } from '@/lib/workspace-api';
+
+interface Ticket {
+    id: number;
+    subject: string;
+    status: string;
+    priority: string;
+    created_at: string;
+    updated_at: string;
+    message_count: number;
+}
+
+export default function SupportPage() {
+    const locale = useLocale();
+    const searchParams = useSearchParams();
+    const isWorkspaceApi = useWorkspaceApi();
+    const [tickets, setTickets] = useState<Ticket[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [showForm, setShowForm] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [subject, setSubject] = useState('');
+    const [message, setMessage] = useState('');
+    const [error, setError] = useState('');
+    const queryProjectId = searchParams.get('project_id');
+    const queryCategory = searchParams.get('category') || undefined;
+    const querySubject = searchParams.get('subject') || '';
+    const projectIdFromQuery = queryProjectId ? parseInt(queryProjectId, 10) : undefined;
+    const openNewFromQuery = searchParams.get('new') === '1';
+
+    const fetchTickets = async () => {
+        const token = getCustomerToken();
+        if (!token) {
+            setLoading(false);
+            return;
+        }
+
+        try {
+            if (!isWorkspaceApi) {
+                setLoading(false);
+                return;
+            }
+            const res = await workspaceFetch('/api/portal/tickets', { token });
+            if (res.ok) {
+                const data = await res.json();
+                const list = Array.isArray(data) ? data : [];
+                setTickets(
+                    list.map((t: { id: number; subject: string; status: string; created_at: string }) => ({
+                        id: t.id,
+                        subject: t.subject,
+                        status: t.status,
+                        priority: 'normal',
+                        created_at: t.created_at,
+                        updated_at: t.created_at,
+                        message_count: 0,
+                    }))
+                );
+            }
+        } catch (err) {
+            console.error('Error fetching tickets:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchTickets();
+    }, [isWorkspaceApi]);
+
+    useEffect(() => {
+        if (openNewFromQuery) {
+            setShowForm(true);
+            if (querySubject) setSubject(querySubject);
+        }
+    }, [openNewFromQuery, querySubject]);
+
+    const createTicketBody = useMemo(() => {
+        const body: { subject: string; category?: string; project_id?: number } = { subject };
+        if (queryCategory) body.category = queryCategory;
+        if (projectIdFromQuery && !Number.isNaN(projectIdFromQuery)) body.project_id = projectIdFromQuery;
+        return body;
+    }, [subject, queryCategory, projectIdFromQuery]);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setSubmitting(true);
+        setError('');
+
+        const token = getCustomerToken();
+        if (!token) return;
+
+        try {
+            if (!isWorkspaceApi) {
+                setError('Portal configurado para Workspace. Configure NEXT_PUBLIC_USE_WORKSPACE_API.');
+                return;
+            }
+            const res = await workspaceFetch('/api/portal/tickets', {
+                method: 'POST',
+                token,
+                body: JSON.stringify(createTicketBody),
+            });
+            if (res.ok) {
+                setSubject('');
+                setMessage('');
+                setShowForm(false);
+                fetchTickets();
+            } else {
+                const data = await res.json();
+                setError(Array.isArray(data.detail) ? data.detail[0]?.msg ?? 'Failed' : (data.detail || 'Failed to create ticket'));
+            }
+        } catch (err) {
+            setError('Connection error');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const getStatusConfig = (status: string) => {
+        const configs: Record<string, { icon: React.ElementType; color: string; bg: string; label: string }> = {
+            open: { icon: AlertCircle, color: 'text-blue-400', bg: 'bg-blue-500/20', label: 'Open' },
+            pending: { icon: Clock, color: 'text-yellow-400', bg: 'bg-yellow-500/20', label: 'Pending Response' },
+            resolved: { icon: CheckCircle2, color: 'text-green-400', bg: 'bg-green-500/20', label: 'Resolved' },
+            closed: { icon: CheckCircle2, color: 'text-slate-400', bg: 'bg-slate-500/20', label: 'Closed' },
+        };
+        return configs[status] || configs.open;
+    };
+
+    const getPriorityColor = (priority: string) => {
+        const colors: Record<string, string> = {
+            low: 'text-slate-400',
+            medium: 'text-blue-400',
+            high: 'text-orange-400',
+            urgent: 'text-red-400',
+        };
+        return colors[priority] || colors.medium;
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-8">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold text-white mb-2">Support</h1>
+                    <p className="text-slate-400">Get help with your projects and account.</p>
+                </div>
+                <motion.button
+                    onClick={() => setShowForm(!showForm)}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white font-medium shadow-lg shadow-blue-500/25"
+                >
+                    {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                    {showForm ? 'Cancel' : 'New Ticket'}
+                </motion.button>
+            </div>
+
+            {/* New Ticket Form */}
+            <AnimatePresence>
+                {showForm && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden"
+                    >
+                        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+                            <h2 className="text-xl font-bold text-white mb-4">Create Support Ticket</h2>
+
+                            {error && (
+                                <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 flex items-center gap-2">
+                                    <AlertCircle className="w-5 h-5" />
+                                    {error}
+                                </div>
+                            )}
+
+                            <form onSubmit={handleSubmit} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-300 mb-2">Subject</label>
+                                    <input
+                                        type="text"
+                                        value={subject}
+                                        onChange={(e) => setSubject(e.target.value)}
+                                        required
+                                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
+                                        placeholder="Brief description of your issue"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-300 mb-2">Message</label>
+                                    <textarea
+                                        value={message}
+                                        onChange={(e) => setMessage(e.target.value)}
+                                        rows={4}
+                                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 resize-none"
+                                        placeholder="Describe your issue in detail..."
+                                    />
+                                </div>
+                                <div className="flex gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowForm(false)}
+                                        className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white font-medium transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <motion.button
+                                        type="submit"
+                                        disabled={submitting}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white font-medium disabled:opacity-50"
+                                    >
+                                        {submitting ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 animate-spin" />
+                                                Sending...
+                                            </>
+                                        ) : (
+                                            <>
+                                                Submit Ticket
+                                                <Send className="w-4 h-4" />
+                                            </>
+                                        )}
+                                    </motion.button>
+                                </div>
+                            </form>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Tickets List */}
+            {tickets.length > 0 ? (
+                <div className="space-y-4">
+                    {tickets.map((ticket, index) => {
+                        const status = getStatusConfig(ticket.status);
+                        const StatusIcon = status.icon;
+
+                        return (
+                            <motion.div
+                                key={ticket.id}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.05 }}
+                            >
+                                <Link href={`/${locale}/support/${ticket.id}`}>
+                                    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:border-white/20 hover:bg-white/10 transition-all cursor-pointer">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-4">
+                                                <div className={`w-10 h-10 rounded-xl ${status.bg} flex items-center justify-center`}>
+                                                    <StatusIcon className={`w-5 h-5 ${status.color}`} />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-white font-medium">{ticket.subject}</h3>
+                                                    <p className="text-slate-400 text-sm">
+                                                        {ticket.message_count} message{ticket.message_count !== 1 ? 's' : ''} •
+                                                        Updated {new Date(ticket.updated_at).toLocaleDateString()}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <span className={`px-3 py-1 rounded-full text-xs font-medium ${status.bg} ${status.color} border border-current/30`}>
+                                                    {status.label}
+                                                </span>
+                                                <ArrowRight className="w-4 h-4 text-slate-400" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Link>
+                            </motion.div>
+                        );
+                    })}
+                </div>
+            ) : (
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-12 text-center"
+                >
+                    <div className="w-20 h-20 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                        <MessageSquare className="w-10 h-10 text-blue-400" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-white mb-2">No Support Tickets</h2>
+                    <p className="text-slate-400 mb-6">You haven't created any support tickets yet.</p>
+                    <motion.button
+                        onClick={() => setShowForm(true)}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white font-medium shadow-lg"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Create Your First Ticket
+                    </motion.button>
+                </motion.div>
+            )}
+
+            {/* Quick Contact */}
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
+                <h2 className="text-lg font-bold text-white mb-4">Quick Contact</h2>
+                <div className="grid md:grid-cols-2 gap-4">
+                    <a
+                        href="mailto:support@innexar.com"
+                        className="flex items-center gap-4 p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors"
+                    >
+                        <div className="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                            <MessageSquare className="w-5 h-5 text-blue-400" />
+                        </div>
+                        <div>
+                            <p className="text-white font-medium">Email Support</p>
+                            <p className="text-slate-400 text-sm">support@innexar.com</p>
+                        </div>
+                    </a>
+                    <a
+                        href="https://wa.me/14074736081"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-4 p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors"
+                    >
+                        <div className="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center">
+                            <MessageSquare className="w-5 h-5 text-green-400" />
+                        </div>
+                        <div>
+                            <p className="text-white font-medium">WhatsApp</p>
+                            <p className="text-slate-400 text-sm">Quick response</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    );
+}
