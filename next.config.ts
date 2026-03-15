@@ -6,7 +6,7 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const nextConfig: NextConfig = {
   reactCompiler: true,
   output: "standalone",
-  // Workaround: Next 16 @next/font compiled .d.ts has truncated type (adjustFontFallb...) in node_modules; project code still type-checked via tsc elsewhere.
+  // Type-check: use `npm run typecheck` (tsc on src only). Next 16 @next/font .d.ts in node_modules can break full tsc; build uses ignoreBuildErrors for that.
   typescript: { ignoreBuildErrors: true },
   async headers() {
     return [
@@ -24,6 +24,15 @@ const nextConfig: NextConfig = {
           {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
+          },
+        ],
+      },
+      {
+        source: "/_next/static/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
           },
         ],
       },

@@ -1,21 +1,16 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  FileText,
-  Palette,
-  Code,
-  Eye,
-  Rocket,
-  CheckCircle2,
-} from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { FileText, Palette, Code, Eye, Rocket, CheckCircle2 } from "lucide-react";
+import { getIntlLocale } from "@/lib/intl-locale";
 
 const PIPELINE_STEPS = [
-  { key: "briefing", icon: FileText, labelPt: "Briefing recebido", labelEn: "Briefing received" },
-  { key: "design", icon: Palette, labelPt: "Design em criação", labelEn: "Design in progress" },
-  { key: "development", icon: Code, labelPt: "Desenvolvimento", labelEn: "Development" },
-  { key: "review", icon: Eye, labelPt: "Revisão", labelEn: "Review" },
-  { key: "delivery", icon: Rocket, labelPt: "Entrega final", labelEn: "Final delivery" },
+  { key: "briefing", icon: FileText, labelKey: "briefing" },
+  { key: "design", icon: Palette, labelKey: "design" },
+  { key: "development", icon: Code, labelKey: "development" },
+  { key: "review", icon: Eye, labelKey: "review" },
+  { key: "delivery", icon: Rocket, labelKey: "delivery" },
 ] as const;
 
 const STATUS_TO_STEP: Record<string, number> = {
@@ -40,20 +35,23 @@ interface ProjectStatusPipelineProps {
 export default function ProjectStatusPipeline({
   status,
   expectedDelivery,
-  locale = "pt",
+  locale: localeProp,
 }: ProjectStatusPipelineProps) {
+  const localeFromHook = useLocale();
+  const locale = localeProp ?? localeFromHook;
+  const intlLocale = getIntlLocale(locale);
+  const t = useTranslations("projectDetails.pipeline");
   const currentStep = STATUS_TO_STEP[status] ?? 2;
-  const isPt = locale === "pt";
 
   return (
-    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-      <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-        <Rocket className="w-5 h-5 text-blue-400" />
-        {isPt ? "Status do Projeto" : "Project Status"}
+    <div className="card-base rounded-2xl p-6">
+      <h2 className="text-lg font-bold text-theme-primary mb-6 flex items-center gap-2">
+        <Rocket className="w-5 h-5 text-[var(--accent)]" />
+        {t("title")}
       </h2>
 
       <div className="relative">
-        <div className="absolute top-5 left-0 right-0 h-0.5 bg-white/10 rounded-full" />
+        <div className="absolute top-5 left-0 right-0 h-0.5 bg-[var(--border)] rounded-full" />
         <motion.div
           initial={{ width: 0 }}
           animate={{
@@ -77,28 +75,26 @@ export default function ProjectStatusPipeline({
                   transition={{ delay: 0.2 + i * 0.1 }}
                   className={`w-10 h-10 rounded-full flex items-center justify-center z-10 transition-all duration-300 ${
                     isComplete
-                      ? "bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg"
+                      ? "bg-gradient-to-br from-blue-500 to-cyan-500 shadow-md"
                       : isCurrent
-                        ? "bg-white/20 ring-4 ring-blue-500/30"
-                        : "bg-white/10"
+                        ? "bg-blue-500/20 ring-4 ring-blue-500/30"
+                        : "bg-[var(--border)]"
                   }`}
                 >
                   {isComplete ? (
                     <CheckCircle2 className="w-5 h-5 text-white" />
                   ) : (
                     <Icon
-                      className={`w-5 h-5 ${
-                        isComplete || isCurrent ? "text-white" : "text-slate-500"
-                      }`}
+                      className={`w-5 h-5 ${isCurrent ? "text-theme-primary" : "text-theme-muted"}`}
                     />
                   )}
                 </motion.div>
                 <span
                   className={`mt-3 text-xs font-medium text-center max-w-[80px] ${
-                    isComplete || isCurrent ? "text-white" : "text-slate-500"
+                    isComplete || isCurrent ? "text-theme-primary" : "text-theme-muted"
                   }`}
                 >
-                  {isPt ? step.labelPt : step.labelEn}
+                  {t(step.labelKey)}
                 </span>
               </div>
             );
@@ -107,12 +103,10 @@ export default function ProjectStatusPipeline({
       </div>
 
       {expectedDelivery && (
-        <p className="mt-6 text-slate-400 text-sm text-center">
-          {isPt ? "Entrega prevista:" : "Expected delivery:"}{" "}
-          <span className="text-white font-medium">
-            {new Date(expectedDelivery).toLocaleDateString(
-              locale === "pt" ? "pt-BR" : "en-US"
-            )}
+        <p className="mt-6 text-theme-secondary text-sm text-center">
+          {t("expectedDelivery")}{" "}
+          <span className="text-theme-primary font-medium">
+            {new Date(expectedDelivery).toLocaleDateString(intlLocale)}
           </span>
         </p>
       )}

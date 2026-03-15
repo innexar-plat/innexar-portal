@@ -47,5 +47,6 @@ jobs:
             NEXT_PUBLIC_WORKSPACE_API_URL=https://api.innexar.com.br
             NEXT_PUBLIC_SITE_URL=https://innexar.com.br
             NEXT_PUBLIC_MP_PUBLIC_KEY=
+            NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
           cache-from: type=gha
           cache-to: type=gha,mode=max

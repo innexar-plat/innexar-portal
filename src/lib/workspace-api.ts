@@ -33,27 +33,21 @@ export async function workspaceFetch(
 ): Promise<Response> {
   const { token, tokenType, ...init } = options;
   const base = getWorkspaceApiBase();
-  const url = path.startsWith("http")
-    ? path
-    : `${base}${path.startsWith("/") ? path : `/${path}`}`;
+  const url = path.startsWith("http") ? path : `${base}${path.startsWith("/") ? path : `/${path}`}`;
   const headers = new Headers(init.headers);
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
   }
-  if (
-    !headers.has("Content-Type") &&
-    init.body &&
-    typeof init.body === "string"
-  ) {
+  if (!headers.has("Content-Type") && init.body && typeof init.body === "string") {
     headers.set("Content-Type", "application/json");
   }
   const res = await fetch(url, { ...init, headers });
-  if (
-    res.status === 401 &&
-    token &&
-    (path.includes("/api/workspace/") || tokenType === "staff")
-  ) {
-    if (typeof window !== "undefined") {
+  if (res.status === 401 && token && typeof window !== "undefined") {
+    if (path.includes("/api/portal/") || tokenType === "customer") {
+      localStorage.removeItem(CUSTOMER_TOKEN_KEY);
+      const locale = document.documentElement.lang || "pt";
+      window.location.href = `/${locale}/login?session_expired=1`;
+    } else if (path.includes("/api/workspace/") || tokenType === "staff") {
       localStorage.removeItem(STAFF_TOKEN_KEY);
       const locale = document.documentElement.lang || "pt";
       window.location.href = `/${locale}/login?session_expired=1`;

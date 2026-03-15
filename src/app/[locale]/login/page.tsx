@@ -1,249 +1,127 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
-import { useLocale, useTranslations } from "next-intl";
+import { Suspense } from "react";
 import Link from "next/link";
-import {
-  Mail,
-  Lock,
-  ArrowRight,
-  Eye,
-  EyeOff,
-  Sparkles,
-  AlertCircle,
-  Loader2,
-} from "lucide-react";
-import {
-  useWorkspaceApi,
-  getWorkspaceApiBase,
-  CUSTOMER_TOKEN_KEY,
-} from "@/lib/workspace-api";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
+import { useTheme } from "@/contexts/theme-context";
+import { useLogin } from "@/hooks/use-login";
+import { LoginForm } from "@/components/auth/LoginForm";
+import { ThemeToggle } from "@/components/header/ThemeToggle";
+import { LocaleSwitcher } from "@/components/header/LocaleSwitcher";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://innexar.com.br";
+const SUPPORT_EMAIL = "contato@innexar.com.br";
 
-export default function PortalLogin() {
-  const t = useTranslations("auth.login");
-  const router = useRouter();
-  const locale = useLocale();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [checkingSession, setCheckingSession] = useState(false);
-
-  const isWorkspaceApi = useWorkspaceApi();
-
-  useEffect(() => {
-    const token = localStorage.getItem(CUSTOMER_TOKEN_KEY);
-    if (token) {
-      router.push(`/${locale}`);
-    }
-  }, [router, locale]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    try {
-      if (!isWorkspaceApi) {
-        setError(
-          "Portal configurado para Workspace. Configure NEXT_PUBLIC_USE_WORKSPACE_API e NEXT_PUBLIC_WORKSPACE_API_URL."
-        );
-        return;
-      }
-      const base = getWorkspaceApiBase();
-      const response = await fetch(
-        `${base}/api/public/auth/customer/login`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        }
-      );
-      const data = await response.json();
-      if (response.ok) {
-        localStorage.setItem(CUSTOMER_TOKEN_KEY, data.access_token);
-        localStorage.setItem("customer_email", email);
-        if (data.customer_id != null) {
-          localStorage.setItem("customer_id", String(data.customer_id));
-        }
-        router.push(`/${locale}`);
-      } else {
-        setError(
-          Array.isArray(data.detail)
-            ? data.detail[0]?.msg ?? t("error.invalid")
-            : (data.detail ?? t("error.invalid"))
-        );
-      }
-    } catch {
-      setError(t("error.generic"));
-    } finally {
-      setLoading(false);
-    }
-  };
+function LoginContent() {
+  const { theme } = useTheme();
+  const {
+    checkingSession,
+    email,
+    setEmail,
+    password,
+    setPassword,
+    showPassword,
+    setShowPassword,
+    error,
+    loading,
+    handleSubmit,
+    t,
+    locale,
+  } = useLogin();
 
   if (checkingSession) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
+      <div
+        className="min-h-screen flex items-center justify-center transition-colors duration-200"
+        style={{ background: "var(--page-bg)" }}
+      >
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="flex flex-col items-center gap-4"
+          style={{ color: "var(--text-secondary)" }}
         >
-          <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-          <p className="text-slate-400">Checking session...</p>
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: "var(--accent)" }} />
+          <p>{t("checkingSession")}</p>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4">
+    <div
+      className="min-h-screen flex items-center justify-center p-4 transition-colors duration-200"
+      style={{ background: "var(--page-bg)" }}
+    >
+      <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
+        <ThemeToggle />
+        <LocaleSwitcher />
+      </div>
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
       </div>
-
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md relative z-10"
       >
         <div className="text-center mb-8">
-          <Link
-            href={`/${locale}`}
-            className="inline-flex items-center gap-3 mb-6"
-          >
-            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/25">
-              <Sparkles className="w-7 h-7 text-white" />
-            </div>
-            <span className="text-3xl font-bold text-white">Innexar</span>
+          <Link href={`/${locale}`} className="inline-flex items-center justify-center mb-6">
+            <Image
+              src="/logo-header-white.png"
+              alt="Innexar"
+              width={320}
+              height={80}
+              className={`h-16 w-auto sm:h-20 md:h-24 ${theme === "light" ? "invert" : ""}`}
+            />
           </Link>
-          <h1 className="text-2xl font-bold text-white mb-2">{t("title")}</h1>
-          <p className="text-slate-400">{t("subtitle")}</p>
+          <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>
+            {t("title")}
+          </h1>
+          <p style={{ color: "var(--text-secondary)" }}>{t("subtitle")}</p>
         </div>
-
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400"
-              >
-                <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                <p className="text-sm">{error}</p>
-              </motion.div>
-            )}
-
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                {t("emailLabel")}
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all"
-                  placeholder={t("emailPlaceholder")}
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                {t("passwordLabel")}
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full pl-12 pr-12 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all"
-                  placeholder={t("passwordPlaceholder")}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
-              </div>
-            </div>
-
-            <div className="text-right">
-              <Link
-                href={`/${locale}/forgot-password`}
-                className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
-              >
-                {t("forgotPassword")}
-              </Link>
-            </div>
-
-            <motion.button
-              type="submit"
-              disabled={loading}
-              whileHover={{ scale: loading ? 1 : 1.02 }}
-              whileTap={{ scale: loading ? 1 : 0.98 }}
-              className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white font-semibold shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  {t("submit")}
-                </>
-              ) : (
-                <>
-                  {t("submit")}
-                  <ArrowRight className="w-5 h-5" />
-                </>
-              )}
-            </motion.button>
-          </form>
-
-          <div className="relative my-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-transparent text-slate-500">
-                {t("noAccount")}
-              </span>
-            </div>
-          </div>
-
+        <LoginForm
+          email={email}
+          setEmail={setEmail}
+          password={password}
+          setPassword={setPassword}
+          showPassword={showPassword}
+          setShowPassword={setShowPassword}
+          error={error}
+          loading={loading}
+          onSubmit={handleSubmit}
+          t={t}
+          locale={locale}
+        />
+        <p className="text-center text-sm mt-8" style={{ color: "var(--text-muted)" }}>
+          {t("needHelp")}
           <a
-            href={SITE_URL}
-            className="block w-full py-3 border border-white/10 hover:border-white/20 rounded-xl text-center text-slate-300 hover:text-white font-medium transition-all"
+            href={`mailto:${SUPPORT_EMAIL}`}
+            className="text-blue-400 hover:text-blue-300 transition-colors"
           >
-            {t("getStarted")}
-          </a>
-        </div>
-
-        <p className="text-center text-slate-500 text-sm mt-8">
-          Need help? Contact{" "}
-          <a
-            href="mailto:support@innexar.com"
-            className="text-blue-400 hover:text-blue-300"
-          >
-            support@innexar.com
+            {SUPPORT_EMAIL}
           </a>
         </p>
       </motion.div>
     </div>
+  );
+}
+
+export default function PortalLogin() {
+  return (
+    <Suspense
+      fallback={
+        <div
+          className="min-h-screen flex items-center justify-center"
+          style={{ background: "var(--page-bg)" }}
+        >
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: "var(--accent)" }} />
+        </div>
+      }
+    >
+      <LoginContent />
+    </Suspense>
   );
 }

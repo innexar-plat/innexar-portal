@@ -1,20 +1,8 @@
-import { defineConfig, globalIgnores } from "eslint/config";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
+import nextConfig from "eslint-config-next";
 
-export default defineConfig([
-  ...nextVitals,
-  ...nextTs,
+export default [
+  ...nextConfig,
   {
-    rules: {
-      "react-hooks/set-state-in-effect": "warn",
-      "react/no-unescaped-entities": "warn",
-      "@next/next/no-html-link-for-pages": "warn",
-      "@next/next/no-assign-module-variable": "warn",
-      "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-require-imports": "off",
-      "prefer-spread": "warn",
-    },
+    ignores: [".next/**", "out/**", "node_modules/**", "*.config.*"],
   },
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
-]);
+];

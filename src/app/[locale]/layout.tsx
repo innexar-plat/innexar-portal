@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Script from "next/script";
 import { Inter } from "next/font/google";
 import "../globals.css";
+import { ThemeProvider } from "@/contexts/theme-context";
 import PortalLayoutWrapper from "./PortalLayoutWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -26,6 +27,11 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var t=localStorage.getItem("portal-theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"}document.documentElement.setAttribute("data-theme",t);})();`,
+          }}
+        />
         <Script
           id="perf-measure-patch"
           strategy="beforeInteractive"
@@ -34,7 +40,9 @@ export default async function LocaleLayout({ children, params }: Props) {
           }}
         />
         <NextIntlClientProvider messages={messages} locale={locale}>
-          <PortalLayoutWrapper>{children}</PortalLayoutWrapper>
+          <ThemeProvider>
+            <PortalLayoutWrapper>{children}</PortalLayoutWrapper>
+          </ThemeProvider>
         </NextIntlClientProvider>
       </body>
     </html>

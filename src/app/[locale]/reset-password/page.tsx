@@ -5,16 +5,9 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import {
-  Lock,
-  Sparkles,
-  AlertCircle,
-  Loader2,
-} from "lucide-react";
-import {
-  getWorkspaceApiBase,
-  useWorkspaceApi,
-} from "@/lib/workspace-api";
+import { Lock, Sparkles, AlertCircle, Loader2 } from "lucide-react";
+import { getWorkspaceApiBase, useWorkspaceApi } from "@/lib/workspace-api";
+import { API_PATHS } from "@/lib/api-paths";
 
 export default function PortalResetPasswordPage() {
   const locale = useLocale();
@@ -53,21 +46,16 @@ export default function PortalResetPasswordPage() {
           return;
         }
         const base = getWorkspaceApiBase();
-        const res = await fetch(
-          `${base}/api/public/auth/customer/reset-password`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token, new_password: password }),
-          }
-        );
+        const res = await fetch(`${base}${API_PATHS.AUTH.RESET_PASSWORD}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, new_password: password }),
+        });
         const data = await res.json().catch(() => ({}));
         if (res.ok) {
           setSuccess(true);
         } else {
-          setError(
-            typeof data.detail === "string" ? data.detail : t("error")
-          );
+          setError(typeof data.detail === "string" ? data.detail : t("error"));
         }
       } catch {
         setError(t("error"));
@@ -82,11 +70,8 @@ export default function PortalResetPasswordPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4">
         <div className="w-full max-w-md text-center">
-          <p className="text-slate-400 mb-4">{t("error")}</p>
-          <Link
-            href={`/${locale}/forgot-password`}
-            className="text-blue-400 hover:text-blue-300"
-          >
+          <p className="text-theme-secondary mb-4">{t("error")}</p>
+          <Link href={`/${locale}/forgot-password`} className="text-blue-400 hover:text-blue-300">
             Solicitar novo link
           </Link>
         </div>
@@ -107,19 +92,14 @@ export default function PortalResetPasswordPage() {
         className="w-full max-w-md relative z-10"
       >
         <div className="text-center mb-8">
-          <Link
-            href={`/${locale}`}
-            className="inline-flex items-center gap-3 mb-6"
-          >
+          <Link href={`/${locale}`} className="inline-flex items-center gap-3 mb-6">
             <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/25">
-              <Sparkles className="w-7 h-7 text-white" />
+              <Sparkles className="w-7 h-7 text-theme-primary" />
             </div>
-            <span className="text-3xl font-bold text-white">Innexar</span>
+            <span className="text-3xl font-bold text-theme-primary">Innexar</span>
           </Link>
-          <h1 className="text-2xl font-bold text-white mb-2">{t("title")}</h1>
-          <p className="text-slate-400">
-            {success ? t("success") : t("subtitle")}
-          </p>
+          <h1 className="text-2xl font-bold text-theme-primary mb-2">{t("title")}</h1>
+          <p className="text-theme-secondary">{success ? t("success") : t("subtitle")}</p>
         </div>
 
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
@@ -147,14 +127,14 @@ export default function PortalResetPasswordPage() {
                   {t("passwordLabel")}
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-theme-muted" />
                   <input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={8}
-                    className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
+                    className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-theme-primary placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
                     placeholder={t("passwordPlaceholder")}
                   />
                 </div>
@@ -164,14 +144,14 @@ export default function PortalResetPasswordPage() {
                   {t("confirmPasswordLabel")}
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-theme-muted" />
                   <input
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     minLength={8}
-                    className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
+                    className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-theme-primary placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
                     placeholder={t("confirmPasswordPlaceholder")}
                   />
                 </div>
@@ -197,7 +177,7 @@ export default function PortalResetPasswordPage() {
             <p className="text-center mt-6">
               <Link
                 href={`/${locale}/forgot-password`}
-                className="text-sm text-slate-400 hover:text-white"
+                className="text-sm text-theme-secondary hover:text-theme-primary"
               >
                 Solicitar novo link
               </Link>

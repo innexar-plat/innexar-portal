@@ -4,18 +4,9 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import {
-  Mail,
-  ArrowRight,
-  Sparkles,
-  AlertCircle,
-  Loader2,
-  CheckCircle,
-} from "lucide-react";
-import {
-  getWorkspaceApiBase,
-  useWorkspaceApi,
-} from "@/lib/workspace-api";
+import { Mail, ArrowRight, Sparkles, AlertCircle, Loader2, CheckCircle } from "lucide-react";
+import { getWorkspaceApiBase, useWorkspaceApi } from "@/lib/workspace-api";
+import { API_PATHS } from "@/lib/api-paths";
 
 export default function PortalForgotPasswordPage() {
   const locale = useLocale();
@@ -36,14 +27,11 @@ export default function PortalForgotPasswordPage() {
         return;
       }
       const base = getWorkspaceApiBase();
-      const res = await fetch(
-        `${base}/api/public/auth/customer/forgot-password`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: email.trim().toLowerCase() }),
-        }
-      );
+      const res = await fetch(`${base}${API_PATHS.AUTH.FORGOT_PASSWORD}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim().toLowerCase(), locale }),
+      });
       await res.json().catch(() => ({}));
       if (res.ok) {
         setSent(true);
@@ -70,19 +58,14 @@ export default function PortalForgotPasswordPage() {
         className="w-full max-w-md relative z-10"
       >
         <div className="text-center mb-8">
-          <Link
-            href={`/${locale}`}
-            className="inline-flex items-center gap-3 mb-6"
-          >
+          <Link href={`/${locale}`} className="inline-flex items-center gap-3 mb-6">
             <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/25">
-              <Sparkles className="w-7 h-7 text-white" />
+              <Sparkles className="w-7 h-7 text-theme-primary" />
             </div>
-            <span className="text-3xl font-bold text-white">Innexar</span>
+            <span className="text-3xl font-bold text-theme-primary">Innexar</span>
           </Link>
-          <h1 className="text-2xl font-bold text-white mb-2">{t("title")}</h1>
-          <p className="text-slate-400">
-            {sent ? t("success") : t("subtitle")}
-          </p>
+          <h1 className="text-2xl font-bold text-theme-primary mb-2">{t("title")}</h1>
+          <p className="text-theme-secondary">{sent ? t("success") : t("subtitle")}</p>
         </div>
 
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
@@ -92,8 +75,7 @@ export default function PortalForgotPasswordPage() {
                 <CheckCircle className="w-16 h-16 text-green-400" />
               </div>
               <p className="text-center text-slate-300 text-sm">
-                Verifique sua caixa de entrada e o spam. O link é válido por 24
-                horas.
+                Verifique sua caixa de entrada e o spam. O link é válido por 24 horas.
               </p>
               <Link
                 href={`/${locale}/login`}
@@ -119,13 +101,13 @@ export default function PortalForgotPasswordPage() {
                   {t("emailLabel")}
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-theme-muted" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
+                    className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-theme-primary placeholder-slate-500 focus:outline-none focus:border-blue-500/50"
                     placeholder={t("emailPlaceholder")}
                   />
                 </div>
@@ -154,7 +136,7 @@ export default function PortalForgotPasswordPage() {
             <p className="text-center mt-6">
               <Link
                 href={`/${locale}/login`}
-                className="text-sm text-slate-400 hover:text-white"
+                className="text-sm text-theme-secondary hover:text-theme-primary"
               >
                 {t("backToLogin")}
               </Link>

@@ -1,9 +1,7 @@
 {
   "compilerOptions": {
-    "typeRoots": [
-      "./node_modules/@types"
-    ],
     "baseUrl": ".",
+    "types": ["node", "react", "react-dom", "jest"],
     "target": "ES2017",
     "lib": [
       "dom",

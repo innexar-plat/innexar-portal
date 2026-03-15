@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useLocale } from "next-intl";
 import PortalLayout from "@/components/PortalLayout";
+import { formatCustomerDisplayName } from "@/lib/display-name";
 
 interface CustomerData {
   name: string;
@@ -20,11 +21,7 @@ function isPublicPath(pathname: string | null, locale: string): boolean {
   return false;
 }
 
-export default function PortalLayoutWrapper({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function PortalLayoutWrapper({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const locale = useLocale();
   const pathname = usePathname();
@@ -34,32 +31,39 @@ export default function PortalLayoutWrapper({
   const isPublic = isPublicPath(pathname ?? null, locale);
 
   useEffect(() => {
-    if (isPublic) {
+    const run = () => {
+      if (isPublic) {
+        setLoading(false);
+        return;
+      }
+      const token = localStorage.getItem("customer_token");
+      if (!token) {
+        router.push(`/${locale}/login`);
+        return;
+      }
+      const storedEmail = localStorage.getItem("customer_email");
+      if (storedEmail) {
+        const prettyName = formatCustomerDisplayName(storedEmail);
+        setCustomerData({
+          name: prettyName || storedEmail.split("@")[0],
+          email: storedEmail,
+        });
+      }
       setLoading(false);
-      return;
-    }
-
-    const token = localStorage.getItem("customer_token");
-
-    if (!token) {
-      router.push(`/${locale}/login`);
-      return;
-    }
-
-    const storedEmail = localStorage.getItem("customer_email");
-    if (storedEmail) {
-      setCustomerData({
-        name: storedEmail.split("@")[0],
-        email: storedEmail,
-      });
-    }
-    setLoading(false);
+    };
+    queueMicrotask(run);
   }, [router, locale, isPublic]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      <div
+        className="min-h-screen flex items-center justify-center transition-colors duration-200"
+        style={{ background: "var(--page-bg)" }}
+      >
+        <div
+          className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin"
+          style={{ borderColor: "var(--accent)", borderTopColor: "transparent" }}
+        />
       </div>
     );
   }
@@ -68,7 +72,5 @@ export default function PortalLayoutWrapper({
     return <>{children}</>;
   }
 
-  return (
-    <PortalLayout customerName={customerData?.name}>{children}</PortalLayout>
-  );
+  return <PortalLayout customerName={customerData?.name}>{children}</PortalLayout>;
 }

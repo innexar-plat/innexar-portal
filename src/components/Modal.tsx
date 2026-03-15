@@ -11,13 +11,7 @@ interface ModalProps {
   size?: "sm" | "md" | "lg" | "xl" | "full";
 }
 
-export default function Modal({
-  isOpen,
-  onClose,
-  title,
-  children,
-  size = "md",
-}: ModalProps) {
+export default function Modal({ isOpen, onClose, title, children, size = "md" }: ModalProps) {
   if (!isOpen) return null;
 
   const sizeClasses = {
@@ -52,9 +46,7 @@ export default function Modal({
             </button>
           </div>
 
-          <div className="px-6 py-4 overflow-y-auto flex-1 text-slate-300">
-            {children}
-          </div>
+          <div className="px-6 py-4 overflow-y-auto flex-1 text-slate-300">{children}</div>
         </motion.div>
       </div>
     </AnimatePresence>
